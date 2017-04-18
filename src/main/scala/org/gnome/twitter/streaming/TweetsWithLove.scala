@@ -44,7 +44,7 @@ object TweetsWithLove {
 
     // Check Spark configuration for master URL, set it to local if not configured
     if (!sparkConf.contains("spark.master")) {
-      sparkConf.setMaster("local[*]")
+      sparkConf.setMaster("local[2]")
     }
 
     val ssc = new StreamingContext(sparkConf, Seconds(10))

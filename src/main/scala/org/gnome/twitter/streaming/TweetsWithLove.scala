@@ -10,11 +10,11 @@
 
 package org.gnome.twitter.streaming.TweetsWithLove
 
-import org.apache.log4j.{Level, Logger}
+import com.typesafe.scalalogging.Logger
 
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.streaming.twitter._
 import org.apache.spark.SparkConf
+import org.apache.spark.streaming.twitter._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 import org.gnome.gtk._
 
@@ -26,7 +26,7 @@ import org.gnome.gtk._
 object TweetsWithLove {
   def main(args: Array[String]) {
     if (args.length < 4) {
-      System.err.println("Usage: TweetsWithLove <consumer key> <consumer secret> " +
+      LOGGER.error("Usage: TweetsWithLove <consumer key> <consumer secret> " +
         "<access token> <access token secret> [<filters>]")
       System.exit(1)
     }
@@ -60,8 +60,7 @@ object TweetsWithLove {
       // Bring back all the tweets to the master
       // where the dialogs are being displayed
       rdd.collect.foreach { tweet =>
-        println("====>")
-        println(tweet.getText)
+        LOGGER.info(s"New tweet: ${tweet.getText}")
         val dialog = new InfoMessageDialog(null, "New tweet! ❤", tweet.getText)
         dialog.run
         Thread.sleep(1000)
@@ -72,4 +71,6 @@ object TweetsWithLove {
     ssc.start()
     ssc.awaitTermination()
   }
+
+  val LOGGER: Logger = Logger("GNOMETweetsOfLove")
 }

@@ -16,6 +16,8 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.twitter._
 import org.apache.spark.SparkConf
 
+import org.gnome.gtk._
+
 /**
   * Streams tweets from a Twitter stream using Apache Spark.
   * The stream is instantiated with credentials and optionally filters supplied
@@ -51,7 +53,20 @@ object TweetsWithLove {
     val stream = TwitterUtils.createStream(ssc, None, filters)
 
     stream.foreachRDD { rdd =>
-      rdd.foreach(tweet => println(tweet.getText))
+      if(!Gtk.isInitialized) {
+        Gtk.init(Array())
+      }
+
+      // Bring back all the tweets to the master
+      // where the dialogs are being displayed
+      rdd.collect.foreach { tweet =>
+        println("====>")
+        println(tweet.getText)
+        val dialog = new InfoMessageDialog(null, "New tweet! ❤", tweet.getText)
+        dialog.run
+        Thread.sleep(1000)
+        dialog.hide
+      }
     }
 
     ssc.start()
